@@ -13,6 +13,7 @@
     <style>
         :root {
             --primary: #FF6B35;
+            --primary-dark: #e55a2b;
             --primary-light: #FF8C5A;
             --secondary: #FFD166;
             --accent: #06D6A0;
@@ -20,8 +21,15 @@
             --white: #FFFFFF;
             --dark-text: #2D3436;
             --gray-text: #636E72;
-            --shadow: 0 20px 40px rgba(0,0,0,0.08);
-            --shadow-hover: 0 30px 50px rgba(0,0,0,0.12);
+            --border-light: rgba(0,0,0,0.08);
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --shadow-hover: 0 20px 40px rgba(0,0,0,0.12);
+            --radius-sm: 12px;
+            --radius: 20px;
+            --radius-lg: 25px;
+            --radius-xl: 30px;
+            --header-height: 70px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,8 +38,10 @@
             font-family: 'Tajawal', sans-serif;
             background: var(--light-bg);
             color: var(--dark-text);
-            line-height: 1.8;
+            line-height: 1.7;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
         }
 
         .animated-bg {
@@ -48,177 +58,390 @@
 
         .floating-shapes { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .shape {
-            position: absolute; background: rgba(255,107,53,0.1); border-radius: 50%;
+            position: absolute; background: rgba(255,107,53,0.08); border-radius: 50%;
             animation: float 20s infinite;
         }
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-100px) rotate(180deg); }
+            50% { transform: translateY(-80px) rotate(180deg); }
         }
 
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: var(--secondary); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-
+        /* ============ HEADER - Mobile First ============ */
         .header {
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             position: fixed; width: 100%; top: 0; z-index: 10000;
-            box-shadow: var(--shadow); border-bottom: 3px solid var(--primary);
+            box-shadow: 0 1px 0 var(--border-light), var(--shadow-sm);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
         }
+        .header.scrolled { border-bottom-color: var(--primary); }
+
         .nav-container {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 5%; max-width: 1600px; margin: auto;
+            padding: 0 16px; max-width: 1400px; margin: auto; height: var(--header-height);
         }
+
+        .logo { display: flex; flex-direction: column; gap: 0; }
         .logo h1 {
-            font-size: 1.8rem;
+            font-size: 1.1rem; font-weight: 800;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text; background-clip: text;
-            color: transparent; letter-spacing: 1px;
+            color: transparent; line-height: 1.3;
         }
-        .logo p { font-size: 0.75rem; color: var(--primary); letter-spacing: 2px; }
+        .logo p { font-size: 0.6rem; color: var(--primary); letter-spacing: 1.5px; opacity: 0.8; }
 
-        .search-bar {
-            display: flex; background: var(--white); border-radius: 50px;
-            overflow: hidden; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.1);
+        /* Desktop Search */
+        .search-bar-desktop { display: none; }
+        .search-bar-desktop input {
+            padding: 10px 18px; background: #f5f5f5; border: 1px solid var(--border-light);
+            border-radius: 50px; width: 240px; font-family: 'Tajawal', sans-serif;
+            font-size: 0.85rem; transition: all 0.3s;
         }
-        .search-bar input { padding: 12px 20px; background: transparent; border: none; width: 280px; font-family: 'Tajawal', sans-serif; }
-        .search-bar button { background: var(--primary); border: none; padding: 12px 25px; color: white; cursor: pointer; transition: 0.3s; }
-        .search-bar button:hover { background: var(--primary-light); }
+        .search-bar-desktop input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(255,107,53,0.1); }
+        .search-bar-desktop button {
+            background: var(--primary); border: none; padding: 10px 18px; color: white;
+            border-radius: 50px; cursor: pointer; transition: 0.3s; margin-right: -45px;
+            font-size: 0.85rem;
+        }
 
-        .menu-toggle { display: none; font-size: 1.8rem; color: var(--primary); background: none; border: none; cursor: pointer; }
+        /* Mobile Header Icons */
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .icon-btn {
+            width: 38px; height: 38px; border-radius: 50%; border: none;
+            background: #f5f5f5; color: var(--dark-text); font-size: 1.1rem;
+            cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+        }
+        .icon-btn:active { transform: scale(0.92); background: #eee; }
+        .icon-btn.search-btn-mobile { color: var(--primary); }
 
-        .hero { margin-top: 85px; min-height: 100vh; position: relative; }
-        .hero-slider { position: relative; height: 70vh; min-height: 500px; overflow: hidden; border-radius: 0 0 30px 30px; }
+        /* Mobile Search Overlay */
+        .mobile-search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 10001;
+            display: flex; flex-direction: column; padding: 20px;
+            transform: translateY(-100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-search-overlay.active { transform: translateY(0); }
+        .mobile-search-overlay .search-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+        }
+        .mobile-search-overlay .search-input-wrap {
+            flex: 1; display: flex; background: #f5f5f5; border-radius: 50px;
+            border: 2px solid transparent; transition: 0.3s; overflow: hidden;
+        }
+        .mobile-search-overlay .search-input-wrap:focus-within { border-color: var(--primary); background: white; }
+        .mobile-search-overlay input {
+            flex: 1; padding: 14px 18px; border: none; background: transparent;
+            font-family: 'Tajawal', sans-serif; font-size: 1rem;
+        }
+        .mobile-search-overlay input:focus { outline: none; }
+        .mobile-search-overlay .search-submit {
+            background: var(--primary); color: white; border: none;
+            padding: 14px 22px; cursor: pointer; font-size: 1.1rem;
+        }
+        .mobile-search-overlay .close-search {
+            width: 42px; height: 42px; border-radius: 50%; border: none;
+            background: #f5f5f5; font-size: 1.3rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mobile-search-overlay .quick-links {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .mobile-search-overlay .quick-link {
+            padding: 8px 16px; background: #f0f0f0; border-radius: 50px;
+            font-size: 0.8rem; cursor: pointer; border: none; font-family: 'Tajawal', sans-serif;
+            transition: 0.3s;
+        }
+        .mobile-search-overlay .quick-link:active { background: var(--primary); color: white; }
+
+        /* Mobile Menu Sidebar */
+        .mobile-menu-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 10000; opacity: 0; visibility: hidden;
+            transition: all 0.3s;
+        }
+        .mobile-menu-backdrop.active { opacity: 1; visibility: visible; }
+        .mobile-menu-sidebar {
+            position: fixed; top: 0; right: -300px; width: 280px; height: 100%;
+            background: white; z-index: 10001; transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -5px 0 30px rgba(0,0,0,0.15); overflow-y: auto;
+            display: flex; flex-direction: column;
+        }
+        .mobile-menu-sidebar.active { right: 0; }
+        .mobile-menu-sidebar .menu-header {
+            padding: 20px; border-bottom: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mobile-menu-sidebar .menu-header h3 { font-size: 1.1rem; color: var(--primary); }
+        .mobile-menu-sidebar .close-menu {
+            width: 36px; height: 36px; border-radius: 50%; border: none;
+            background: #f5f5f5; font-size: 1.2rem; cursor: pointer;
+        }
+        .mobile-menu-sidebar .menu-links { padding: 15px; flex: 1; }
+        .mobile-menu-sidebar .menu-link {
+            display: flex; align-items: center; gap: 12px; padding: 14px;
+            border-radius: var(--radius-sm); cursor: pointer; transition: 0.3s;
+            font-weight: 500; font-size: 0.95rem;
+        }
+        .mobile-menu-sidebar .menu-link:active { background: #fff0e8; color: var(--primary); }
+        .mobile-menu-sidebar .menu-link i { width: 22px; text-align: center; color: var(--primary); }
+
+        /* ============ HERO - Mobile First ============ */
+        .hero { margin-top: var(--header-height); }
+        .hero-slider {
+            position: relative; height: 45vh; min-height: 320px; overflow: hidden;
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
         .heroSwiper { width: 100%; height: 100%; }
-        .hero-slide { position: relative; display: flex; align-items: center; justify-content: center; }
-        .hero-slide img { width: 100%; height: 100%; object-fit: cover; }
-        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1)); }
-        .hero-content { position: absolute; z-index: 2; text-align: center; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .hero-content h1 { font-size: 3.5rem; font-weight: 800; }
+        .hero-slide { position: relative; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 30px; }
+        .hero-slide img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 60%);
+        }
+        .hero-content {
+            position: relative; z-index: 2; text-align: center; color: white;
+            padding: 0 20px 20px;
+        }
+        .hero-content h1 { font-size: 2rem; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         .hero-content h1 span { color: var(--secondary); }
+        .hero-content p { font-size: 0.9rem; opacity: 0.9; margin-top: 5px; }
 
-        /* BIG STAT BANNER */
-        .big-stat-banner {
-            display: flex; justify-content: center; align-items: center;
-            margin: -50px auto 40px; position: relative; z-index: 10; padding: 0 20px;
-        }
+        /* Big Stat Banner */
+        .big-stat-banner { padding: 0 16px; margin: -30px auto 30px; position: relative; z-index: 10; }
         .big-stat-card {
-            background: linear-gradient(135deg, var(--primary), #e55a2b);
-            padding: 35px 60px; border-radius: 25px; text-align: center;
-            box-shadow: 0 25px 50px rgba(255, 107, 53, 0.35);
-            transition: all 0.4s; color: white;
-            display: flex; align-items: center; gap: 25px; flex-wrap: wrap; justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 22px 25px; border-radius: var(--radius); text-align: center;
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.3);
+            color: white; display: flex; align-items: center; gap: 15px;
+            justify-content: center; flex-wrap: wrap;
         }
-        .big-stat-card:hover { transform: translateY(-8px); box-shadow: 0 35px 60px rgba(255, 107, 53, 0.45); }
-        .big-stat-icon { font-size: 4rem; animation: bounceIcon 2s ease-in-out infinite; }
+        .big-stat-icon { font-size: 2.5rem; animation: bounceIcon 2s ease-in-out infinite; }
         @keyframes bounceIcon {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            50% { transform: translateY(-10px); }
         }
-        .big-stat-number { font-size: 4.5rem; font-weight: 900; line-height: 1; text-shadow: 0 3px 15px rgba(0,0,0,0.2); }
-        .big-stat-label { font-size: 1.4rem; font-weight: 700; opacity: 0.95; }
-        .big-stat-sub { font-size: 0.9rem; opacity: 0.8; margin-top: 5px; }
+        .big-stat-number { font-size: 2.8rem; font-weight: 900; line-height: 1; }
+        .big-stat-label { font-size: 1rem; font-weight: 700; }
+        .big-stat-sub { font-size: 0.7rem; opacity: 0.85; margin-top: 3px; }
 
-        @media (max-width: 600px) {
-            .big-stat-card { padding: 25px 30px; gap: 15px; }
-            .big-stat-number { font-size: 3rem; }
-            .big-stat-icon { font-size: 2.8rem; }
-            .big-stat-label { font-size: 1.1rem; }
+        /* Section Title */
+        .section-title {
+            text-align: center; font-size: 1.3rem; margin: 30px 0 20px;
+            color: var(--primary); font-weight: 700; padding: 0 16px;
+        }
+        .section-title::after {
+            content: ''; display: block; width: 50px; height: 3px;
+            background: var(--primary); margin: 8px auto 0; border-radius: 3px;
         }
 
-        .section-title { text-align: center; font-size: 2rem; margin: 50px 0 30px; color: var(--primary); }
-
-        /* PROVINCES SLIDER */
-        .provinces-slider-container { position: relative; padding: 20px 60px; max-width: 1400px; margin: 0 auto 40px; }
-        .provincesSwiper { width: 100%; padding: 15px 10px; overflow: hidden; }
+        /* ============ PROVINCES SLIDER - Mobile First ============ */
+        .provinces-slider-container {
+            position: relative; padding: 0 12px; max-width: 1200px;
+            margin: 0 auto 30px;
+        }
+        .provincesSwiper { width: 100%; padding: 10px 5px; overflow: hidden; }
 
         .province-card {
-            background: var(--white); border-radius: 20px; text-align: center;
-            cursor: pointer; transition: all 0.4s; box-shadow: var(--shadow);
-            border: 1px solid rgba(255,107,53,0.2); height: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-start; min-height: 300px; overflow: hidden;
+            background: var(--white); border-radius: var(--radius); text-align: center;
+            cursor: pointer; transition: all 0.3s; box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light); overflow: hidden;
+            display: flex; flex-direction: column; min-height: 220px;
+            -webkit-tap-highlight-color: transparent;
         }
-        .province-card:hover { transform: translateY(-10px) scale(1.03); border-color: var(--primary); box-shadow: var(--shadow-hover); }
-        .province-image { width: 100%; height: 180px; object-fit: cover; transition: transform 0.4s; }
-        .province-card:hover .province-image { transform: scale(1.08); }
-        .province-card-body { padding: 20px; display: flex; flex-direction: column; align-items: center; flex: 1; justify-content: center; }
-        .province-icon { font-size: 1.8rem; color: var(--primary); margin-bottom: 8px; transition: transform 0.3s; }
-        .province-card:hover .province-icon { transform: scale(1.2) rotate(5deg); }
-        .province-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 5px; }
-        .restaurant-count { color: var(--gray-text); font-size: 0.9rem; font-weight: 500; }
-
-        .province-nav-prev, .province-nav-next {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            width: 50px; height: 50px; background: var(--white); border-radius: 50%;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2); cursor: pointer; z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-            color: var(--primary); font-size: 1.3rem; transition: all 0.3s; border: 2px solid var(--primary);
+        .province-card:active { transform: scale(0.96); }
+        .province-image { width: 100%; height: 130px; object-fit: cover; transition: transform 0.4s; }
+        .province-card-body {
+            padding: 14px 12px; display: flex; flex-direction: column;
+            align-items: center; flex: 1; justify-content: center; gap: 3px;
         }
-        .province-nav-prev:hover, .province-nav-next:hover { background: var(--primary); color: white; transform: translateY(-50%) scale(1.1); }
-        .province-nav-prev { right: 5px; }
-        .province-nav-next { left: 5px; }
+        .province-icon { font-size: 1.4rem; color: var(--primary); }
+        .province-name { font-size: 1rem; font-weight: 700; }
+        .restaurant-count { color: var(--gray-text); font-size: 0.7rem; font-weight: 500; }
 
-        .province-pagination { position: relative; margin-top: 20px; text-align: center; }
-        .province-pagination .swiper-pagination-bullet { width: 12px; height: 12px; background: var(--primary); opacity: 0.3; }
-        .province-pagination .swiper-pagination-bullet-active { opacity: 1; background: var(--primary); transform: scale(1.3); }
+        /* Navigation Arrows - Hidden on Mobile */
+        .province-nav-prev, .province-nav-next { display: none; }
+        .province-pagination { position: relative; margin-top: 15px; text-align: center; }
+        .province-pagination .swiper-pagination-bullet {
+            width: 8px; height: 8px; background: var(--primary); opacity: 0.3;
+        }
+        .province-pagination .swiper-pagination-bullet-active { opacity: 1; transform: scale(1.4); }
 
-        /* CITY PAGE */
-        .city-page { display: none; min-height: 100vh; padding: 100px 5% 60px; }
+        /* ============ CITY PAGE ============ */
+        .city-page { display: none; min-height: 100vh; padding: calc(var(--header-height) + 15px) 12px 40px; }
         .city-page.active { display: block; }
-        .city-header { text-align: center; margin-bottom: 40px; }
-        .city-header h2 { font-size: 2.5rem; color: var(--primary); }
-        .back-btn { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 50px; cursor: pointer; font-size: 1rem; margin-bottom: 20px; transition: 0.3s; display: inline-block; }
-        .back-btn:hover { background: var(--primary-light); transform: translateX(-8px); }
+        .city-header { text-align: center; margin-bottom: 25px; }
+        .city-header h2 { font-size: 1.6rem; color: var(--primary); }
+        .city-header p { font-size: 0.8rem; color: var(--gray-text); }
+        .back-btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 22px; border-radius: 50px; cursor: pointer;
+            font-size: 0.85rem; margin-bottom: 15px; transition: 0.3s;
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .back-btn:active { transform: scale(0.95); }
 
-        /* RESTAURANTS GRID */
-        .restaurants-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 30px; max-width: 1400px; margin: 0 auto; }
-        .restaurant-card { background: var(--white); border-radius: 20px; overflow: hidden; transition: all 0.4s; cursor: pointer; box-shadow: var(--shadow); }
-        .restaurant-card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); }
-        .restaurant-image { height: 220px; overflow: hidden; position: relative; }
-        .restaurant-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .restaurant-card:hover .restaurant-image img { transform: scale(1.08); }
-        .rating { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 50px; font-size: 0.8rem; color: var(--secondary); }
-        .restaurant-info { padding: 20px; }
-        .restaurant-info h3 { font-size: 1.3rem; margin-bottom: 5px; color: var(--primary); }
-        .restaurant-cuisine { color: var(--accent); font-size: 0.85rem; margin-bottom: 10px; }
-        .restaurant-desc { font-size: 0.85rem; color: var(--gray-text); margin-bottom: 15px; }
-        .restaurant-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
-        .price-range { color: var(--primary); font-weight: 700; }
-        .btn-details { background: var(--primary); color: white; border: none; padding: 8px 20px; border-radius: 50px; cursor: pointer; transition: 0.3s; }
-        .btn-details:hover { background: var(--primary-light); transform: scale(1.05); }
+        /* Restaurants Grid */
+        .restaurants-grid {
+            display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 1200px; margin: 0 auto;
+        }
+        .restaurant-card {
+            background: var(--white); border-radius: var(--radius); overflow: hidden;
+            transition: all 0.3s; cursor: pointer; box-shadow: var(--shadow-sm);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .restaurant-card:active { transform: scale(0.97); }
+        .restaurant-image { height: 180px; overflow: hidden; position: relative; }
+        .restaurant-image img { width: 100%; height: 100%; object-fit: cover; }
+        .rating {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(0,0,0,0.7); padding: 4px 10px;
+            border-radius: 50px; font-size: 0.7rem; color: var(--secondary);
+        }
+        .restaurant-info { padding: 15px; }
+        .restaurant-info h3 { font-size: 1.05rem; margin-bottom: 3px; color: var(--primary); }
+        .restaurant-cuisine { color: var(--accent); font-size: 0.75rem; margin-bottom: 6px; }
+        .restaurant-desc { font-size: 0.75rem; color: var(--gray-text); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .restaurant-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #eee; }
+        .price-range { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+        .btn-details {
+            background: var(--primary); color: white; border: none;
+            padding: 7px 16px; border-radius: 50px; cursor: pointer;
+            font-size: 0.8rem; font-family: 'Tajawal', sans-serif;
+        }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; align-items: center; justify-content: center; overflow-y: auto; }
+        /* ============ MODAL ============ */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 99999; align-items: flex-end;
+            justify-content: center;
+        }
         .modal.active { display: flex; }
-        .modal-content { background: var(--white); max-width: 900px; width: 90%; border-radius: 30px; padding: 30px; position: relative; max-height: 90vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 20px; left: 20px; background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
-        .modal-img { width: 100%; height: 250px; object-fit: cover; border-radius: 20px; margin: 20px 0; }
-        .google-map { width: 100%; height: 300px; border-radius: 20px; margin: 15px 0; border: 2px solid var(--primary); }
-        .whatsapp-order { background: #25D366; color: white; padding: 12px 25px; border-radius: 50px; border: none; cursor: pointer; margin-top: 15px; display: inline-flex; align-items: center; gap: 10px; font-size: 1rem; }
-        .info-row { margin: 12px 0; padding: 8px; background: #f8f9fa; border-radius: 12px; }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 600px;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 25px 20px;
+            position: relative; max-height: 85vh; overflow-y: auto;
+            animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        .modal-close {
+            position: sticky; top: 0; float: left; z-index: 2;
+            background: #f5f5f5; color: var(--dark-text); border: none;
+            width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.1rem;
+        }
+        .modal-img { width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius); margin: 15px 0; }
+        .google-map { width: 100%; height: 200px; border-radius: var(--radius); margin: 12px 0; border: 1px solid #eee; }
+        .whatsapp-order {
+            background: #25D366; color: white; padding: 12px 20px; border-radius: 50px;
+            border: none; cursor: pointer; margin-top: 12px; display: inline-flex;
+            align-items: center; gap: 8px; font-size: 0.9rem; width: 100%;
+            justify-content: center; font-family: 'Tajawal', sans-serif;
+        }
+        .info-row { margin: 8px 0; padding: 10px; background: #f8f9fa; border-radius: var(--radius-sm); font-size: 0.85rem; }
 
-        /* FOOTER */
-        .footer { background: var(--white); padding: 40px 5% 25px; text-align: center; margin-top: 50px; border-top: 3px solid var(--primary); box-shadow: var(--shadow); }
-
-        .developer-footer { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; text-align: center; padding: 25px 5%; border-top: 3px solid var(--primary); }
-        .developer-footer .dev-content { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
-        .developer-footer .dev-logo { width: 60px; height: 60px; border-radius: 15px; object-fit: contain; background: white; padding: 5px; }
+        /* ============ FOOTER ============ */
+        .footer {
+            background: var(--white); padding: 25px 16px; text-align: center;
+            border-top: 2px solid var(--primary); font-size: 0.8rem;
+        }
+        .developer-footer {
+            background: linear-gradient(135deg, #1a1a2e, #16213e); color: white;
+            text-align: center; padding: 20px 16px; border-top: 2px solid var(--primary);
+            font-size: 0.75rem;
+        }
+        .developer-footer .dev-content { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .developer-footer .dev-logo { width: 45px; height: 45px; border-radius: 12px; object-fit: contain; background: white; padding: 4px; }
         .developer-footer .dev-text { text-align: right; }
-        .developer-footer .dev-text h4 { font-size: 1.1rem; margin-bottom: 3px; color: var(--secondary); }
-        .developer-footer .dev-text p { font-size: 0.8rem; color: #ccc; }
+        .developer-footer .dev-text h4 { font-size: 0.9rem; color: var(--secondary); }
         .developer-footer .dev-text a { color: var(--primary-light); text-decoration: none; font-weight: 700; }
 
-        @media (max-width: 768px) {
-            .search-bar { display: none; }
-            .menu-toggle { display: block; }
-            .hero-content h1 { font-size: 1.8rem; }
-            .restaurants-grid { grid-template-columns: 1fr; }
-            .provinces-slider-container { padding: 20px 45px; }
-            .province-card { min-height: 270px; }
-            .province-image { height: 140px; }
-            .province-name { font-size: 1.1rem; }
-            .province-nav-prev, .province-nav-next { width: 38px; height: 38px; }
+        /* ============ TABLET (≥ 640px) ============ */
+        @media (min-width: 640px) {
+            .hero-slider { height: 55vh; min-height: 380px; }
+            .hero-content h1 { font-size: 2.8rem; }
+            .hero-content p { font-size: 1rem; }
+            .big-stat-card { padding: 30px 45px; gap: 20px; }
+            .big-stat-icon { font-size: 3.2rem; }
+            .big-stat-number { font-size: 3.5rem; }
+            .big-stat-label { font-size: 1.2rem; }
+            .section-title { font-size: 1.6rem; }
+            .province-image { height: 150px; }
+            .restaurants-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .province-pagination .swiper-pagination-bullet { width: 10px; height: 10px; }
+        }
+
+        /* ============ DESKTOP (≥ 1024px) ============ */
+        @media (min-width: 1024px) {
+            :root { --header-height: 80px; }
+            
+            /* Show desktop search, hide mobile buttons */
+            .search-bar-desktop { display: flex; align-items: center; }
+            .header-actions .icon-btn.search-btn-mobile { display: none; }
+            .header-actions .icon-btn.menu-btn { display: none; }
+            
+            .logo h1 { font-size: 1.6rem; }
+            .logo p { font-size: 0.7rem; }
+            
+            .nav-container { padding: 0 30px; }
+            
+            .hero-slider { height: 65vh; min-height: 480px; border-radius: 0 0 var(--radius-xl) var(--radius-xl); }
+            .hero-content h1 { font-size: 3.5rem; }
+            .hero-content p { font-size: 1.1rem; }
+            .hero-content { padding-bottom: 30px; }
+            
+            .big-stat-banner { max-width: 700px; margin: -40px auto 40px; }
+            .big-stat-card { padding: 35px 55px; }
+            .big-stat-icon { font-size: 3.8rem; }
+            .big-stat-number { font-size: 4.2rem; }
+            .big-stat-label { font-size: 1.4rem; }
+            .big-stat-sub { font-size: 0.85rem; }
+            
+            .section-title { font-size: 1.8rem; margin: 50px 0 30px; }
+            .section-title::after { width: 70px; }
+            
+            .provinces-slider-container { padding: 20px 55px; }
+            .province-card { min-height: 280px; border-radius: var(--radius); }
+            .province-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: var(--shadow-hover); border-color: var(--primary); }
+            .province-image { height: 170px; }
+            .province-card-body { padding: 18px 15px; }
+            .province-name { font-size: 1.15rem; }
+            .restaurant-count { font-size: 0.8rem; }
+            
+            .province-nav-prev, .province-nav-next {
+                display: flex; width: 44px; height: 44px;
+                border: 2px solid var(--primary); font-size: 1.1rem;
+            }
+            .province-nav-prev:hover, .province-nav-next:hover { background: var(--primary); color: white; }
+            .province-pagination { margin-top: 25px; }
+            
+            .restaurants-grid { grid-template-columns: repeat(3, 1fr); gap: 25px; }
+            .restaurant-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+            .restaurant-card:active { transform: scale(1); }
+            .restaurant-image { height: 200px; }
+            .restaurant-info h3 { font-size: 1.15rem; }
+            
+            .city-page { padding: calc(var(--header-height) + 20px) 30px 60px; }
+            .city-header h2 { font-size: 2.2rem; }
+            
+            .modal { align-items: center; }
+            .modal-content { border-radius: var(--radius-xl); max-width: 750px; max-height: 90vh; }
+            .modal-img { height: 280px; }
+            .google-map { height: 280px; }
+            .whatsapp-order { width: auto; }
+        }
+
+        /* ============ LARGE DESKTOP (≥ 1280px) ============ */
+        @media (min-width: 1280px) {
+            .restaurants-grid { grid-template-columns: repeat(4, 1fr); }
+            .provinces-slider-container { max-width: 1300px; }
+            .province-image { height: 190px; }
+            .province-card { min-height: 300px; }
         }
     </style>
 </head>
@@ -227,27 +450,88 @@
 <div class="animated-bg"></div>
 <div class="floating-shapes" id="shapes"></div>
 
-<header class="header">
+<!-- ============ HEADER ============ -->
+<header class="header" id="header">
     <div class="nav-container">
         <div class="logo">
             <h1>🍽️ أين ستأكل اليوم؟</h1>
-            <p>اكتشف أفضل المطاعم في سوريا</p>
+            <p>دليل المطاعم في سوريا</p>
         </div>
-        <div class="search-bar">
-            <input type="text" id="globalSearch" placeholder="🔍 ابحث عن مطعم...">
-            <button onclick="globalSearch()"><i class="fas fa-search"></i></button>
+        
+        <!-- Desktop Search -->
+        <div class="search-bar-desktop">
+            <input type="text" id="desktopSearch" placeholder="🔍 ابحث عن مطعم أو محافظة...">
+            <button onclick="globalSearch(document.getElementById('desktopSearch').value)"><i class="fas fa-search"></i></button>
         </div>
-        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        
+        <!-- Mobile Header Icons -->
+        <div class="header-actions">
+            <button class="icon-btn search-btn-mobile" onclick="openMobileSearch()" aria-label="بحث">
+                <i class="fas fa-search"></i>
+            </button>
+            <button class="icon-btn menu-btn" onclick="openMobileMenu()" aria-label="قائمة">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </div>
 </header>
 
+<!-- ============ MOBILE SEARCH OVERLAY ============ -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+    <div class="search-header">
+        <div class="search-input-wrap">
+            <input type="text" id="mobileSearchInput" placeholder="🔍 ابحث عن مطعم...">
+            <button class="search-submit" onclick="globalSearch(document.getElementById('mobileSearchInput').value)"><i class="fas fa-search"></i></button>
+        </div>
+        <button class="close-search" onclick="closeMobileSearch()"><i class="fas fa-times"></i></button>
+    </div>
+    <p style="font-size:0.8rem;color:var(--gray-text);margin-bottom:12px;">اقتراحات سريعة:</p>
+    <div class="quick-links">
+        <button class="quick-link" onclick="quickSearch('مشاوي')">🍖 مشاوي</button>
+        <button class="quick-link" onclick="quickSearch('بيتزا')">🍕 بيتزا</button>
+        <button class="quick-link" onclick="quickSearch('حلويات')">🍰 حلويات</button>
+        <button class="quick-link" onclick="quickSearch('برغر')">🍔 برغر</button>
+        <button class="quick-link" onclick="quickSearch('بحري')">🐟 مأكولات بحرية</button>
+    </div>
+</div>
+
+<!-- ============ MOBILE MENU SIDEBAR ============ -->
+<div class="mobile-menu-backdrop" id="mobileMenuBackdrop" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu-sidebar" id="mobileMenuSidebar">
+    <div class="menu-header">
+        <h3>🍽️ القائمة</h3>
+        <button class="close-menu" onclick="closeMobileMenu()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="menu-links">
+        <div class="menu-link" onclick="closeMobileMenu(); document.getElementById('mainPage').style.display='block'; document.getElementById('cityPagesContainer').innerHTML=''; window.scrollTo({top:0,behavior:'smooth'});">
+            <i class="fas fa-home"></i> الرئيسية
+        </div>
+        <div class="menu-link" onclick="closeMobileMenu(); openMobileSearch();">
+            <i class="fas fa-search"></i> بحث متقدم
+        </div>
+        <div class="menu-link" onclick="closeMobileMenu(); document.getElementById('provincesSwiper') && provincesSwiper.slideTo(0); window.scrollTo({top:document.querySelector('.section-title')?.offsetTop-100,behavior:'smooth'});">
+            <i class="fas fa-map-marker-alt"></i> المحافظات
+        </div>
+        <div class="menu-link" onclick="closeMobileMenu(); showCityPage('دمشق')">
+            <i class="fas fa-star"></i> أفضل مطاعم دمشق
+        </div>
+        <div class="menu-link" onclick="closeMobileMenu(); showCityPage('حلب')">
+            <i class="fas fa-star"></i> أفضل مطاعم حلب
+        </div>
+    </div>
+    <div style="padding:15px;border-top:1px solid #eee;text-align:center;font-size:0.7rem;color:var(--gray-text);">
+        © 2024 أين ستأكل اليوم؟
+    </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
 <div id="mainPage">
     <div class="hero">
         <div class="hero-slider">
             <div class="swiper heroSwiper">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide hero-slide">
-                        <img src="https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="مطعم سوري">
+                        <img src="https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="مطعم سوري" loading="eager">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <h1>أهلاً بك في <span>سوريا</span></h1>
@@ -255,7 +539,7 @@
                         </div>
                     </div>
                     <div class="swiper-slide hero-slide">
-                        <img src="https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="مطبخ سوري">
+                        <img src="https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="مطبخ سوري" loading="lazy">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <h1>أكثر من <span>7,000</span> مطعم</h1>
@@ -263,7 +547,7 @@
                         </div>
                     </div>
                     <div class="swiper-slide hero-slide">
-                        <img src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="أكلات سورية">
+                        <img src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="أكلات سورية" loading="lazy">
                         <div class="hero-overlay"></div>
                         <div class="hero-content">
                             <h1>طعم <span>لا يُقاوم</span></h1>
@@ -272,8 +556,6 @@
                     </div>
                 </div>
                 <div class="swiper-pagination"></div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
             </div>
         </div>
 
@@ -301,16 +583,18 @@
     </div>
 </div>
 
+<!-- ============ CITY PAGES CONTAINER ============ -->
 <div id="cityPagesContainer"></div>
 
+<!-- ============ RESTAURANT MODAL ============ -->
 <div id="restaurantModal" class="modal" onclick="if(event.target===this) closeModal()">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-        <h2 id="modalTitle" style="color:var(--primary);margin-bottom:10px;"></h2>
-        <div id="modalCuisine" style="color:var(--accent);margin-bottom:5px;"></div>
-        <div id="modalRating" style="margin-bottom:15px;"></div>
+        <h2 id="modalTitle" style="color:var(--primary);margin-bottom:5px;font-size:1.3rem;"></h2>
+        <div id="modalCuisine" style="color:var(--accent);margin-bottom:3px;font-size:0.85rem;"></div>
+        <div id="modalRating" style="margin-bottom:10px;font-size:0.85rem;"></div>
         <img id="modalImage" class="modal-img" src="" alt="">
-        <p id="modalDesc" style="margin:20px 0;"></p>
+        <p id="modalDesc" style="margin:15px 0;font-size:0.9rem;"></p>
         <div class="info-row" id="modalAddress"></div>
         <div class="info-row" id="modalPhone"></div>
         <div class="info-row" id="modalHours"></div>
@@ -320,49 +604,82 @@
     </div>
 </div>
 
+<!-- ============ FOOTER ============ -->
 <footer class="footer">
     <p>🍽️ <strong>أين ستأكل اليوم؟</strong> - دليلك الشامل للمطاعم في سوريا</p>
-    <p style="margin-top:10px;font-size:0.8rem;">📍 جميع المحافظات السورية | أكثر من 7,000 مطعم موصى به | تحديثات يومية</p>
-    <p style="margin-top:10px;font-size:0.7rem;">© 2024 جميع الحقوق محفوظة</p>
+    <p style="margin-top:6px;font-size:0.7rem;opacity:0.7;">📍 جميع المحافظات السورية | أكثر من 7,000 مطعم | تحديثات يومية</p>
 </footer>
 
 <div class="developer-footer">
     <div class="dev-content">
-        <img src="https://imgur.com/QQou6iW.jpg" alt="Kyntrava AI Logo" class="dev-logo" onerror="this.style.display='none'">
+        <img src="https://imgur.com/QQou6iW.jpg" alt="Kyntrava AI" class="dev-logo" onerror="this.style.display='none'">
         <div class="dev-text">
-            <h4>🚀 تم تطوير هذا المنتج بواسطة</h4>
+            <h4>🚀 تم تطويره بواسطة</h4>
             <p><a href="#" target="_blank">Kyntrava AI</a> - الذكاء الاصطناعي بأيدي عربية</p>
-            <p style="font-size:0.7rem;margin-top:5px;">حلول تقنية مبتكرة | تطوير ويب | تطبيقات موبايل | استشارات رقمية</p>
         </div>
     </div>
 </div>
 
+<!-- ============ SCRIPTS ============ -->
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
 
 <script>
-    AOS.init({ duration: 800, once: true });
+    // ============ INIT ============
+    AOS.init({ duration: 600, once: true, disable: 'mobile' });
 
+    // Hero Slider (بدون أسهم على الجوال)
     const heroSwiper = new Swiper('.heroSwiper', {
         loop: true,
         autoplay: { delay: 4000, disableOnInteraction: false },
         pagination: { el: '.swiper-pagination', clickable: true },
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         effect: 'fade',
-        speed: 1000,
+        speed: 800,
     });
 
-    for (let i = 0; i < 30; i++) {
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        document.getElementById('header').classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Floating shapes
+    const shapesContainer = document.getElementById('shapes');
+    for (let i = 0; i < 20; i++) {
         const shape = document.createElement('div');
         shape.className = 'shape';
-        const size = Math.random() * 100 + 20;
+        const size = Math.random() * 70 + 20;
         shape.style.width = size + 'px';
         shape.style.height = size + 'px';
         shape.style.left = Math.random() * 100 + '%';
         shape.style.top = Math.random() * 100 + '%';
         shape.style.animationDelay = Math.random() * 20 + 's';
-        shape.style.animationDuration = Math.random() * 30 + 15 + 's';
-        document.getElementById('shapes').appendChild(shape);
+        shape.style.animationDuration = Math.random() * 25 + 15 + 's';
+        shapesContainer.appendChild(shape);
+    }
+
+    // ============ MOBILE FUNCTIONS ============
+    function openMobileSearch() {
+        document.getElementById('mobileSearchOverlay').classList.add('active');
+        setTimeout(() => document.getElementById('mobileSearchInput').focus(), 400);
+    }
+    function closeMobileSearch() {
+        document.getElementById('mobileSearchOverlay').classList.remove('active');
+        document.getElementById('mobileSearchInput').value = '';
+    }
+    function openMobileMenu() {
+        document.getElementById('mobileMenuSidebar').classList.add('active');
+        document.getElementById('mobileMenuBackdrop').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeMobileMenu() {
+        document.getElementById('mobileMenuSidebar').classList.remove('active');
+        document.getElementById('mobileMenuBackdrop').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    function quickSearch(term) {
+        document.getElementById('mobileSearchInput').value = term;
+        closeMobileSearch();
+        globalSearch(term);
     }
 
     // ============ DATA ============
@@ -388,40 +705,22 @@
     ];
 
     const provinceCoords = {
-        'دمشق': { lat: 33.5138, lng: 36.2765 },
-        'ريف دمشق': { lat: 33.5, lng: 36.3 },
-        'حلب': { lat: 36.2021, lng: 37.1343 },
-        'حمص': { lat: 34.7321, lng: 36.7105 },
-        'حماة': { lat: 35.135, lng: 36.7514 },
-        'اللاذقية': { lat: 35.531, lng: 35.7909 },
-        'طرطوس': { lat: 34.889, lng: 35.886 },
-        'دير الزور': { lat: 35.338, lng: 40.144 },
-        'الحسكة': { lat: 36.511, lng: 40.743 },
-        'الرقة': { lat: 35.959, lng: 39.018 },
-        'إدلب': { lat: 35.933, lng: 36.633 },
-        'السويداء': { lat: 32.706, lng: 36.569 },
-        'درعا': { lat: 32.624, lng: 36.102 },
-        'القنيطرة': { lat: 33.124, lng: 35.823 }
+        'دمشق': { lat: 33.5138, lng: 36.2765 }, 'ريف دمشق': { lat: 33.5, lng: 36.3 },
+        'حلب': { lat: 36.2021, lng: 37.1343 }, 'حمص': { lat: 34.7321, lng: 36.7105 },
+        'حماة': { lat: 35.135, lng: 36.7514 }, 'اللاذقية': { lat: 35.531, lng: 35.7909 },
+        'طرطوس': { lat: 34.889, lng: 35.886 }, 'دير الزور': { lat: 35.338, lng: 40.144 },
+        'الحسكة': { lat: 36.511, lng: 40.743 }, 'الرقة': { lat: 35.959, lng: 39.018 },
+        'إدلب': { lat: 35.933, lng: 36.633 }, 'السويداء': { lat: 32.706, lng: 36.569 },
+        'درعا': { lat: 32.624, lng: 36.102 }, 'القنيطرة': { lat: 33.124, lng: 35.823 }
     };
 
     const provinceIcons = {
-        'دمشق': 'landmark',
-        'ريف دمشق': 'tree',
-        'حلب': 'city',
-        'حمص': 'industry',
-        'حماة': 'water',
-        'اللاذقية': 'umbrella-beach',
-        'طرطوس': 'ship',
-        'دير الزور': 'bridge',
-        'الحسكة': 'mountain',
-        'الرقة': 'mosque',
-        'إدلب': 'leaf',
-        'السويداء': 'gem',
-        'درعا': 'fort-awesome',
-        'القنيطرة': 'hill-rockslide'
+        'دمشق': 'landmark', 'ريف دمشق': 'tree', 'حلب': 'city', 'حمص': 'industry',
+        'حماة': 'water', 'اللاذقية': 'umbrella-beach', 'طرطوس': 'ship',
+        'دير الزور': 'bridge', 'الحسكة': 'mountain', 'الرقة': 'mosque',
+        'إدلب': 'leaf', 'السويداء': 'gem', 'درعا': 'fort-awesome', 'القنيطرة': 'hill-rockslide'
     };
 
-    // ============ صور المحافظات (روابطك + صورتين من عندي) ============
     const provinceImages = {
         'دمشق': 'https://imgur.com/qxbKmUp.jpg',
         'ريف دمشق': 'https://imgur.com/JuyiJQI.jpg',
@@ -439,6 +738,7 @@
         'القنيطرة': 'https://imgur.com/QlsJK5A.jpg'
     };
 
+    // ============ GENERATE DATA ============
     function generateRestaurants(province, count = 50) {
         const restaurants = [];
         const coords = provinceCoords[province] || { lat: 33.5, lng: 36.3 };
@@ -449,35 +749,29 @@
             const rating = (3.5 + Math.random() * 1.5).toFixed(1);
             const priceRange = ['$$', '$$$', '$$$$', '$$$$$'][Math.floor(Math.random() * 4)];
             const description = `✨ أحد أرقى مطاعم ${province}، يقدم ألذ المأكولات ${cuisine} بأجواء راقية وخدمة ممتازة.`;
-            const latOffset = (Math.random() - 0.5) * 0.05;
-            const lngOffset = (Math.random() - 0.5) * 0.05;
-            
             restaurants.push({
                 id: `${province}_${i}`,
                 name: `${randomName} ${randomAdj}`,
-                cuisine: cuisine,
-                rating: rating,
-                priceRange: priceRange,
-                description: description,
+                cuisine, rating, priceRange, description,
                 address: `${province} - شارع ${['الفرنسي', 'بغداد', 'الجامعة', 'الصالحية', 'المالكي', 'الشام', 'العروبة'][Math.floor(Math.random()*7)]}`,
                 phone: `09${Math.floor(Math.random() * 9000000 + 1000000)}`,
                 image: imagePool[Math.floor(Math.random() * imagePool.length)] + `?w=600&h=400&random=${i}`,
                 openingHours: `${Math.floor(Math.random() * 12 + 10)}:00 صباحاً - ${Math.floor(Math.random() * 4 + 20)}:00 مساءً`,
-                lat: coords.lat + latOffset,
-                lng: coords.lng + lngOffset
+                lat: coords.lat + (Math.random() - 0.5) * 0.05,
+                lng: coords.lng + (Math.random() - 0.5) * 0.05
             });
         }
         return restaurants;
     }
 
     const allRestaurants = {};
-    provinces.forEach(province => { allRestaurants[province] = generateRestaurants(province, 50); });
+    provinces.forEach(p => { allRestaurants[p] = generateRestaurants(p, 50); });
 
+    // ============ PROVINCES SLIDER ============
     let provincesSwiper;
-
+    
     function renderProvinces() {
         const wrapper = document.getElementById('provincesWrapper');
-        
         wrapper.innerHTML = provinces.map(province => {
             const iconClass = provinceIcons[province] || 'city';
             const imgSrc = provinceImages[province];
@@ -495,40 +789,38 @@
             `;
         }).join('');
 
-        if (provincesSwiper) { provincesSwiper.destroy(true, true); }
+        if (provincesSwiper) provincesSwiper.destroy(true, true);
         
+        const isMobile = window.innerWidth < 1024;
         provincesSwiper = new Swiper('#provincesSwiper', {
-            slidesPerView: 1,
-            spaceBetween: 20,
+            slidesPerView: isMobile ? 1.5 : 3.5,
+            spaceBetween: isMobile ? 12 : 25,
             loop: true,
             centeredSlides: false,
             autoplay: { delay: 3000, disableOnInteraction: false, pauseOnMouseEnter: true },
             pagination: { el: '#provincePagination', clickable: true, dynamicBullets: true },
-            navigation: { nextEl: '#provinceNext', prevEl: '#provincePrev' },
+            navigation: isMobile ? false : { nextEl: '#provinceNext', prevEl: '#provincePrev' },
             breakpoints: {
-                320: { slidesPerView: 1.2, spaceBetween: 15 },
-                480: { slidesPerView: 1.8, spaceBetween: 20 },
-                768: { slidesPerView: 2.5, spaceBetween: 25 },
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                768: { slidesPerView: 2.5, spaceBetween: 20 },
                 1024: { slidesPerView: 3.5, spaceBetween: 25 },
-                1280: { slidesPerView: 4.5, spaceBetween: 30 },
-                1536: { slidesPerView: 5.5, spaceBetween: 30 }
+                1280: { slidesPerView: 4.5, spaceBetween: 30 }
             },
-            speed: 800,
+            speed: 600,
             grabCursor: true,
-            observer: true,
-            observeParents: true
         });
     }
 
+    // ============ PAGE FUNCTIONS ============
     window.showCityPage = function(province) {
         document.getElementById('mainPage').style.display = 'none';
         const container = document.getElementById('cityPagesContainer');
         const restaurants = allRestaurants[province];
         
-        let restaurantsHTML = '';
+        let html = '';
         restaurants.forEach(rest => {
-            restaurantsHTML += `
-                <div class="restaurant-card" onclick="showRestaurantDetails('${province}', '${rest.id}')" data-aos="fade-up">
+            html += `
+                <div class="restaurant-card" onclick="showRestaurantDetails('${province}', '${rest.id}')">
                     <div class="restaurant-image">
                         <img src="${rest.image}" alt="${rest.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?w=600'">
                         <div class="rating"><i class="fas fa-star" style="color:#FFD166"></i> ${rest.rating}</div>
@@ -536,7 +828,7 @@
                     <div class="restaurant-info">
                         <h3>${rest.name}</h3>
                         <div class="restaurant-cuisine"><i class="fas fa-utensils"></i> ${rest.cuisine}</div>
-                        <p class="restaurant-desc">${rest.description.substring(0, 80)}...</p>
+                        <p class="restaurant-desc">${rest.description}</p>
                         <div class="restaurant-footer">
                             <span class="price-range">${rest.priceRange}</span>
                             <button class="btn-details" onclick="event.stopPropagation(); showRestaurantDetails('${province}', '${rest.id}')">تفاصيل 📖</button>
@@ -553,10 +845,9 @@
                     <h2>📍 ${province}</h2>
                     <p>🌟 ${restaurants.length} مطعم مميز في هذه المحافظة</p>
                 </div>
-                <div class="restaurants-grid">${restaurantsHTML}</div>
+                <div class="restaurants-grid">${html}</div>
             </div>
         `;
-        
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -568,67 +859,65 @@
     };
 
     window.showRestaurantDetails = function(province, restId) {
-        const restaurant = allRestaurants[province].find(r => r.id === restId);
-        if (!restaurant) return;
+        const rest = allRestaurants[province].find(r => r.id === restId);
+        if (!rest) return;
         
-        document.getElementById('modalTitle').innerHTML = restaurant.name;
-        document.getElementById('modalCuisine').innerHTML = `<i class="fas fa-utensils"></i> ${restaurant.cuisine}`;
-        document.getElementById('modalRating').innerHTML = `<i class="fas fa-star" style="color:#FFD166"></i> ${restaurant.rating} / 5 ⭐`;
-        document.getElementById('modalImage').src = restaurant.image;
+        document.getElementById('modalTitle').innerHTML = rest.name;
+        document.getElementById('modalCuisine').innerHTML = `<i class="fas fa-utensils"></i> ${rest.cuisine}`;
+        document.getElementById('modalRating').innerHTML = `<i class="fas fa-star" style="color:#FFD166"></i> ${rest.rating} / 5 ⭐`;
+        document.getElementById('modalImage').src = rest.image;
         document.getElementById('modalImage').style.display = 'block';
-        document.getElementById('modalDesc').innerHTML = restaurant.description;
-        document.getElementById('modalAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> 📍 ${restaurant.address}`;
-        document.getElementById('modalPhone').innerHTML = `<i class="fas fa-phone"></i> 📞 ${restaurant.phone}`;
-        document.getElementById('modalHours').innerHTML = `<i class="fas fa-clock"></i> 🕐 ${restaurant.openingHours}`;
-        document.getElementById('modalPrice').innerHTML = `<i class="fas fa-tag"></i> 💰 مستوى السعر: ${restaurant.priceRange}`;
+        document.getElementById('modalDesc').innerHTML = rest.description;
+        document.getElementById('modalAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> 📍 ${rest.address}`;
+        document.getElementById('modalPhone').innerHTML = `<i class="fas fa-phone"></i> 📞 ${rest.phone}`;
+        document.getElementById('modalHours').innerHTML = `<i class="fas fa-clock"></i> 🕐 ${rest.openingHours}`;
+        document.getElementById('modalPrice').innerHTML = `<i class="fas fa-tag"></i> 💰 مستوى السعر: ${rest.priceRange}`;
         
         const mapDiv = document.getElementById('modalMap');
-        mapDiv.innerHTML = '';
-        const iframe = document.createElement('iframe');
-        iframe.width = '100%'; iframe.height = '300'; iframe.style.border = '0';
-        iframe.style.borderRadius = '15px'; iframe.loading = 'lazy'; iframe.allowFullscreen = true;
-        iframe.referrerPolicy = 'no-referrer-when-downgrade';
-        iframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${restaurant.lat},${restaurant.lng}&zoom=15&language=ar`;
-        mapDiv.appendChild(iframe);
+        mapDiv.innerHTML = `<iframe width="100%" height="200" style="border:0;border-radius:15px;" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${rest.lat},${rest.lng}&zoom=15&language=ar"></iframe>`;
         
-        const whatsappMsg = `مرحباً، أرغب بالطلب من مطعم ${restaurant.name} في ${province}%0Aالاسم: [اكتب اسمك]%0Aالطلب: [اكتب طلبك]%0Aالعنوان: ${restaurant.address}`;
-        document.getElementById('modalWhatsapp').onclick = () => { window.open(`https://wa.me/963${restaurant.phone}?text=${whatsappMsg}`, '_blank'); };
+        const whatsappMsg = `مرحباً، أرغب بالطلب من مطعم ${rest.name} في ${province}%0Aالاسم: [اكتب اسمك]%0Aالطلب: [اكتب طلبك]%0Aالعنوان: ${rest.address}`;
+        document.getElementById('modalWhatsapp').onclick = () => window.open(`https://wa.me/963${rest.phone}?text=${whatsappMsg}`, '_blank');
         document.getElementById('modalWhatsapp').style.display = 'inline-flex';
         
         document.getElementById('restaurantModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
     };
 
     function closeModal() {
         document.getElementById('restaurantModal').classList.remove('active');
-        document.getElementById('modalImage').style.display = 'block';
-        document.getElementById('modalWhatsapp').style.display = 'inline-flex';
+        document.body.style.overflow = '';
     }
 
-    window.globalSearch = function() {
-        const searchTerm = document.getElementById('globalSearch').value.toLowerCase();
-        if (!searchTerm) return;
+    window.globalSearch = function(searchTerm) {
+        if (!searchTerm || !searchTerm.trim()) return;
+        const term = searchTerm.trim().toLowerCase();
+        
         let results = [];
-        for (const province in allRestaurants) {
-            const found = allRestaurants[province].filter(r => r.name.toLowerCase().includes(searchTerm) || r.cuisine.toLowerCase().includes(searchTerm));
-            results.push(...found.map(r => ({...r, province})));
+        for (const p in allRestaurants) {
+            const found = allRestaurants[p].filter(r => r.name.toLowerCase().includes(term) || r.cuisine.toLowerCase().includes(term));
+            results.push(...found.map(r => ({...r, province: p})));
         }
+        
         if (results.length === 0) { alert('😢 لا توجد نتائج مطابقة للبحث'); return; }
-        let resultsHTML = `<h2 style="color:var(--primary)">🔍 نتائج البحث عن: "${searchTerm}"</h2><div style="max-height:500px;overflow-y:auto;">`;
+        
+        let html = `<h2 style="color:var(--primary);font-size:1.1rem;">🔍 نتائج البحث عن: "${term}"</h2><div style="max-height:400px;overflow-y:auto;">`;
         results.forEach(r => {
-            resultsHTML += `
-                <div style="background:#f8f9fa;margin:10px;padding:15px;border-radius:15px;cursor:pointer;border-right:4px solid var(--primary);" 
+            html += `
+                <div style="background:#f8f9fa;margin:8px;padding:12px;border-radius:12px;cursor:pointer;border-right:3px solid var(--primary);font-size:0.85rem;" 
                      onclick="closeModal(); showCityPage('${r.province}'); setTimeout(()=>showRestaurantDetails('${r.province}','${r.id}'),500);">
-                    <h3 style="color:var(--primary)">🍽️ ${r.name}</h3>
+                    <h3 style="color:var(--primary);font-size:1rem;">🍽️ ${r.name}</h3>
                     <p>📍 ${r.province} | ${r.cuisine} | ⭐ ${r.rating}</p>
                 </div>
             `;
         });
-        resultsHTML += `</div>`;
+        html += `</div>`;
+        
         document.getElementById('modalTitle').innerHTML = 'نتائج البحث';
         document.getElementById('modalCuisine').innerHTML = '';
         document.getElementById('modalRating').innerHTML = '';
         document.getElementById('modalImage').style.display = 'none';
-        document.getElementById('modalDesc').innerHTML = resultsHTML;
+        document.getElementById('modalDesc').innerHTML = html;
         document.getElementById('modalAddress').innerHTML = '';
         document.getElementById('modalPhone').innerHTML = '';
         document.getElementById('modalHours').innerHTML = '';
@@ -636,25 +925,27 @@
         document.getElementById('modalMap').innerHTML = '';
         document.getElementById('modalWhatsapp').style.display = 'none';
         document.getElementById('restaurantModal').classList.add('active');
+        document.body.style.overflow = 'hidden';
     };
 
-    const menuToggle = document.getElementById('menuToggle');
-    let mobileMenuShowing = false;
-    menuToggle.addEventListener('click', () => {
-        const searchBar = document.querySelector('.search-bar');
-        if (!mobileMenuShowing) {
-            searchBar.style.display = 'flex'; searchBar.style.position = 'fixed';
-            searchBar.style.top = '80px'; searchBar.style.right = '5%';
-            searchBar.style.zIndex = '9999'; searchBar.style.background = 'white';
-            searchBar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
-            mobileMenuShowing = true;
-        } else {
-            searchBar.style.display = 'none'; mobileMenuShowing = false;
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeMobileSearch();
+            closeMobileMenu();
         }
     });
 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-    document.addEventListener('DOMContentLoaded', function() { renderProvinces(); });
+    // Init
+    document.addEventListener('DOMContentLoaded', renderProvinces);
+    window.addEventListener('resize', () => {
+        if (provincesSwiper) {
+            const isMobile = window.innerWidth < 1024;
+            provincesSwiper.params.navigation = isMobile ? false : { nextEl: '#provinceNext', prevEl: '#provincePrev' };
+            provincesSwiper.update();
+        }
+    });
 </script>
 </body>
 </html>
